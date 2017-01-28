@@ -3,6 +3,7 @@ from flask import Flask, request, render_template
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Server
 from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings, Base
+from sklearn.naive_bayes import GaussianNB
 import json
 import os
 
@@ -24,10 +25,11 @@ manager.add_command("runserver", Server(),threaded=True,debug=True)
 
 # Base.metadata.create_all(db)
 
+gauss_clf = 0
+
 
 @app.before_request
 def check_id():
-    print request
     if request.method == 'POST':
         sess_id = request.args['sessionId']
         var = User.filter_by(session_id = sess_id).all()
@@ -37,6 +39,8 @@ def check_id():
             create_new_user(sess_id)
         else:
             gauss_clf = session.query(Classifiers).filter_by(user_id=user[0].id).first()
+        print "printing CLF"
+        print gauss_clf
 
 
 @app.route('/testdatabase', methods = ["POST"] )
@@ -89,6 +93,8 @@ def header(response):
 
 def create_new_user(sess_id):
     gauss_clf = GaussianNB()
+    print "printing CLF"
+    print gauss_clf
     user = User(session_id=sess_id)
     db.session.add(user)
     user_id = User.filter_by(session_id = sess_id).all()[0].id

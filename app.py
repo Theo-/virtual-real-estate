@@ -32,47 +32,15 @@ Session.configure(bind=db)
 
 @app.before_request
 def check_id():
+    print request
     if request.method == 'POST':
         sess_id = request.args['sessionId']
         session = Session()
-        var = session.query(User).filter_by(session_id = sess_id).all()
-        if len(var) == 0:
-            user = User(session_id=sess_id)
-            session.add(user)
-            session.commit()
-
-
-@app.route('/testdatabase', methods = ["POST"] )
-def testdatabase():
-    if request.method == "POST":
-        id = request.args['ID']
-        session_id = request.args['SESS_ID']
-        user = User(session_id=session_id)
-        session = Session()
-        session.add(user)
-        session.commit()
-        return "HAHAHA"
-
-@app.route('/testdatabase2',methods = ["POST"])
-def testdatabase2():
-    dictionary_obj = {"Hello World":"This is me","HAHA":"HAHA"}
-    if request.method == "POST":
-        # Example of adding a pickled object
-        user_id = request.form['user_id']
-        classifier = Classifiers(user_id=user_id,pickled_classifier=dictionary_obj)
-        session = Session()
-        session.add(classifier)
-        session.commit()
-        return "WORKED"
-
-
-@app.route('/gettest_pickled')
-def testdatabase3():
-    session = Session()
-    results = session.query(Classifiers).all()
-    qar = [ result.pickled_classifier   for result in results]
-    print(qar)
-    return "HEHE"
+        user = session.query(User).filter_by(session_id = sess_id).all()
+        if len(user) == 0:
+            create_new_user(sess_id)
+        else:
+            gauss_clf = session.query(Classifiers).filter_by(user_id=user[0].id).first()
 
 @app.route('/homepage')
 def homepage():
@@ -90,6 +58,16 @@ def get_con():
 def header(response):
     response.headers['Content-type'] = ' application/json'
     return response
+
+def create_new_user(sess_id):
+    session = Session() # add a new user
+    gauss_clf = GaussianNB()
+    user = User(session_id=sess_id)
+    session.add(user)
+    user_id = session.query(User).filter_by(session_id = sess_id).all()[0].id
+    classifier = Classifiers(user_id=user_id,pickled_classifier=gauss_clf)
+    session.add(classifier)
+    session.commit()
 
 if __name__ == "__main__":
     manager.run()

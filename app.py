@@ -14,6 +14,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] =  'mysql+pymysql://admin:M%m65=N3s-A&ZR3t
 
 db = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
 
+
 # Used to create database session
 Session = sessionmaker()
 Session.configure(bind=db)
@@ -37,19 +38,34 @@ class Classifiers(Base):
 Base.metadata.create_all(db)
 
 
-@app.route('/', methods =["POST"] )
-def get_con():
+@app.route('/testdatabase', methods =["POST"] )
+def testdatabase():
     if request.method == "POST":
         id = request.form['ID']
         session_id = request.form['SESS_ID']
         user = User(session_id=session_id)
-
         session = Session()
         session.add(user)
         session.commit()
-
         return "HAHAHA"
 
+
+# @app.before_request
+# def check_id():
+#     if request.method == 'POST':
+#         return "hello"
+
+@app.route('/', methods =["POST"] )
+def get_con():
+    if request.method == "POST":
+        json_text = json.dumps({"id": request.args['sessionId']})
+
+        return json_text
+
+@app.after_request
+def header(response):
+    response.headers['Content-type'] = ' application/json'
+    return response
 
 
 if __name__ == "__main__":

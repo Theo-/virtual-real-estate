@@ -1,22 +1,56 @@
 from flask import Flask, request
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Column,Integer,String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.types import PickleType
+from sqlalchemy.schema import ForeignKey
+from sqlalchemy.orm import sessionmaker
+
 import json
 import os
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] =  'mysql://admin:M%m65=N3s-A&ZR3t@mchacks2017.c5se38qdaeio.us-east-1.rds.amazonaws.com:3306/mchacks'
+app.config['SQLALCHEMY_DATABASE_URI'] =  'mysql+pymysql://admin:M%m65=N3s-A&ZR3t@mchacks2017.c5se38qdaeio.us-east-1.rds.amazonaws.com:3306/mchacks'
 
 db = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+
+# Used to create database session
+Session = sessionmaker()
+Session.configure(bind=db)
+
+# Creating the Models
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer,primary_key=True)
+    session_id = Column(String(300),nullable=False) # 300 chosen randomly.
+
+class Classifiers(Base):
+    __tablename__ = "classifiers"
+    id = Column(Integer,primary_key=True)
+    user_id = Column('user_id',Integer,ForeignKey("users.id"),nullable=False)
+    pickled_classifier = Column(PickleType,nullable=False)
+
+
+# Creates the models
+Base.metadata.create_all(db)
+
 
 @app.route('/', methods =["POST"] )
 def get_con():
     if request.method == "POST":
-        return json.dumps({
-"speech": "Barack Hussein Obama II is the 44th and current President of the United States.",
-"displayText": "Barack Hussein Obama II is the 44th and current President of the United States, and the first African American to hold the office. Born in Honolulu, Hawaii, Obama is a graduate of Columbia University   and Harvard Law School, where ",
-})
-    
-    
+        id = request.form['ID']
+        session_id = request.form['SESS_ID']
+        user = User(session_id=session_id)
+
+        session = Session()
+        session.add(user)
+        session.commit()
+
+        return "HAHAHA"
+
+
+
 if __name__ == "__main__":
     app.run(host = "0.0.0.0", port=int(os.environ['PORT']),threaded=True,debug=True)

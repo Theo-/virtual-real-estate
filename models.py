@@ -1,18 +1,15 @@
-<<<<<<< HEAD
 from app import db
-=======
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import PickleType
 from sqlalchemy_utils import URLType
->>>>>>> 014a1d3a2051c3fc158fd0481c986d15ac00c5e5
 
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer,primary_key=True)
     session_id = db.Column(db.String(300),nullable=False) # 300 chosen randomly.
-    
+
 
 class Classifiers(db.Model):
     __tablename__ = "classifiers"

@@ -72,7 +72,7 @@ def testdatabase3():
     print(qar)
     return "HEHE"
 
-        
+
 
 @app.route('/homepage')
 def homepage():

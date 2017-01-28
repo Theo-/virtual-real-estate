@@ -4,9 +4,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import PickleType
 from sqlalchemy.schema import ForeignKey
 from sqlalchemy.orm import sessionmaker
-
 import json
 import os
+import pickle
 
 app = Flask(__name__)
 
@@ -48,6 +48,29 @@ def testdatabase():
         session.add(user)
         session.commit()
         return "HAHAHA"
+
+
+@app.route('/testdatabase2',methods = ["POST"])
+def testdatabase2():
+    dictionary_obj = {"Hello World":"This is me","HAHA":"HAHA"}
+    if request.method == "POST":
+        # Example of adding a pickled object
+        user_id = request.form['user_id']
+        classifier = Classifiers(user_id=user_id,pickled_classifier=dictionary_obj)
+        session = Session()
+        session.add(classifier)
+        session.commit()
+        return "WORKED"
+
+
+@app.route('/gettest_pickled')
+def testdatabase3():
+    session = Session()
+    results = session.query(Classifiers).all()
+    qar = [ result.pickled_classifier   for result in results]
+    print(qar)
+    return "HEHE"
+
 
 
 # @app.before_request

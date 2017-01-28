@@ -1,16 +1,14 @@
-from flask import Flask
+from flask import Flask, request
+ 
+import json
 
 app = Flask(__name__)
 
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
-
-
-@app.route('/getCon', methods =["POST"] )
-def get_con:
-
-
+@app.route('/', methods =["POST"] )
+def get_con():
+    if request.method == "POST":
+        return json.dumps({"param" :request.args['sessionId']})
+    
 
 if __name__ == "__main__":
     app.run(port=5000,threaded=True,debug=True)

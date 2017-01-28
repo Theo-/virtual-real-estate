@@ -17,5 +17,33 @@ url2 = [ tuple(item.split('='))  for item in url]
 url3 = dict(url2)
 
 
-r = requests.get("https://api.airbnb.com/v2/search_results",params=url3)
-print(r.text)
+print(url3)
+
+
+def json_prettyprint(dictionary):
+    print(json.dumps(dictionary,sort_keys=True,indent=4))
+
+json_prettyprint(url3)
+
+
+def get_airbnb_listing(client_id,**kwargs):
+    pass
+
+
+def get_airbnb_review(client_id,**kwargs):
+    pass
+
+
+def get_airbnb_hosts(client_id,**kwargs):
+    pass
+
+
+def get_airbnb_listing_info(client_id,**kwargs):
+    pass
+
+
+
+
+
+#r = requests.get("https://api.airbnb.com/v2/search_results",params=url3)
+#print(r.text)

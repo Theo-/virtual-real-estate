@@ -9,6 +9,20 @@ url = "locale=en-US&currency=USD&_format=for_search_results_with_minimal_pricing
 
 client_id="3092nxybyb0otqw18e8nh5nty"
 
+def request_error_catching(URL, parameter):
+    try:
+        r = requests.get(URL, params=parameter)
+    except requests.exceptions.Timeout as e:
+        print e
+        return 1
+    except requests.exceptions.TooManyRedirects as e:
+        print e
+        return 1
+    except requests.exceptions.RequestException as e:
+        print e
+        sys.exit(1)
+    return r
+
 def parse_get_request(url):
     '''
     Returns a dictionary of a url with all of the get params extracted.
@@ -58,11 +72,15 @@ def get_airbnb_review(client_id, **kwargs):
     '''
 
     url = "https://api.airbnb.com/v2/reviews?role=all&client_id="+client_id
-    r = requests.get(url,params=kwargs)
-    json_resp = r.json()
-    json_reviews = json_resp['reviews']
-    each_review = [ review for review in json_reviews]
-    return each_review
+    r = request_error_catching(url,kwargs)
+    if (r != 0):
+        json_resp = r.json()
+        json_reviews = json_resp['reviews']
+        each_review = [ review for review in json_reviews]
+        return each_review
+    else:
+        return 'ERROR: listing not found'
+
 
 
 def get_airbnb_hosts(client_id,**kwargs):
@@ -71,7 +89,6 @@ def get_airbnb_hosts(client_id,**kwargs):
 
 def get_airbnb_listing_info(client_id,**kwargs):
     pass
-
 
 #r = requests.get("https://api.airbnb.com/v2/search_results",params=url3)
 #print(r.text)

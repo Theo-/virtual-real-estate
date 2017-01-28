@@ -11,4 +11,4 @@ def get_con():
     
 
 if __name__ == "__main__":
-    app.run(port=5000,threaded=True,debug=True)
+    app.run(port=80,threaded=True,debug=True)

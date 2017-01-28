@@ -1,0 +1,30 @@
+{
+      "author": {
+        "acceptance_rate": "N/A",
+        "created_at": "2014-09-13T06:27:16Z",
+        "first_name": "Alex",
+        "has_profile_pic": true,
+        "id": 21271593,
+        "identity_mt_verified": false,
+        "identity_v2_verified": false,
+        "identity_verified": true,
+        "is_superhost": false,
+        "is_trip_host": false,
+        "picture_large_url": "https://a0.muscache.com/im/pictures/3b17e09b-f8c6-4526-babe-b746575723bc.jpg?aki_policy=profile_large",
+        "picture_url": "https://a0.muscache.com/im/pictures/3b17e09b-f8c6-4526-babe-b746575723bc.jpg?aki_policy=profile_x_medium",
+        "recommendation_count": 0,
+        "response_rate": "N/A",
+        "response_time": "N/A",
+        "reviewee_count": 0,
+        "thumbnail_medium_url": "https://a0.muscache.com/im/pictures/3b17e09b-f8c6-4526-babe-b746575723bc.jpg?aki_policy=profile_medium",
+        "thumbnail_url": "https://a0.muscache.com/im/pictures/3b17e09b-f8c6-4526-babe-b746575723bc.jpg?aki_policy=profile_small"
+      },
+      
+      "author_id": 21271593,
+      "can_be_edited": false,
+      "comments": "We needed somewhere close to the Heavenly Gondola, and this place was perfect- at either end of the street connecting to ours, we could take the ski shuttle- very handy! The space was plenty for 2 of us and our gear and the kitchen had everything we needed to cook each night. Would recommend to anyone looking for a nice, quiet home away from home.",
+      "created_at": "2016-12-22T03:26:28Z",
+      "id": 122211244,
+      "listing_id": 2056659,
+      "recipient_id": 10457593
+  }

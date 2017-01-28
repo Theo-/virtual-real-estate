@@ -53,7 +53,10 @@ def get_airbnb_review(client_id, **kwargs):
 
     url = "https://api.airbnb.com/v2/reviews?role=all&client_id="+client_id
     r = requests.get(url,params=kwargs)
-    return r
+    json_resp = r.json()
+    json_reviews = json_resp['reviews']
+    each_review = [ review for review in json_reviews]
+    return each_review
 
 
 def get_airbnb_hosts(client_id,**kwargs):

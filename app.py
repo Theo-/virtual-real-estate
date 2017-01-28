@@ -3,14 +3,11 @@ from sqlalchemy import create_engine
 import json
 import os
 
+app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = \
-    'mysql://admin:M%m65=N3s-A&ZR3t@mchacks2017.c5se38qdaeio.us-east-1.rds.amazonaws.com:3306/mchacks'
+app.config['SQLALCHEMY_DATABASE_URI'] =  'mysql://admin:M%m65=N3s-A&ZR3t@mchacks2017.c5se38qdaeio.us-east-1.rds.amazonaws.com:3306/mchacks'
 
 db = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
-
-
-app = Flask(__name__)
 
 @app.route('/', methods =["POST"] )
 def get_con():

@@ -50,10 +50,10 @@ def testdatabase():
         return "HAHAHA"
 
 
-# @app.before_request
-# def check_id():
-#     if request.method == 'POST':
-#         return "hello"
+@app.before_request
+def check_id():
+    if request.method == 'POST':
+        check_id()
 
 @app.route('/', methods =["POST"] )
 def get_con():
@@ -66,6 +66,9 @@ def get_con():
 def header(response):
     response.headers['Content-type'] = ' application/json'
     return response
+
+def check_id(sess_id):
+    #Session.query(users).filter()
 
 
 if __name__ == "__main__":

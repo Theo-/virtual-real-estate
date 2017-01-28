@@ -1,5 +1,7 @@
-from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, request, render_template
+from flask_migrate import Migrate, MigrateCommand
+from flask_script import Manager, Server
 from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings, Base
 import json
 import os
@@ -11,16 +13,30 @@ app.config['SQLALCHEMY_DATABASE_URI'] =  'mysql+pymysql://admin:M%m65=N3s-A&ZR3t
 
 # Creating Database
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+server = Server(host="0.0.0.0", port=int(os.environ['PORT']))
+
+
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
+manager.add_command("runserver", Server(),threaded=True,debug=True)
+
+
+# Base.metadata.create_all(db)
+
 
 @app.before_request
 def check_id():
+    print request
     if request.method == 'POST':
         sess_id = request.args['sessionId']
         var = User.filter_by(session_id = sess_id).all()
-        if len(var) == 0:
-            user = User(session_id=sess_id)
-            db.session.add(user)
-            db.session.commit()
+
+        user = User.filter_by(session_id = sess_id).all()
+        if len(user) == 0:
+            create_new_user(sess_id)
+        else:
+            gauss_clf = session.query(Classifiers).filter_by(user_id=user[0].id).first()
 
 
 @app.route('/testdatabase', methods = ["POST"] )
@@ -52,6 +68,13 @@ def testdatabase3():
     print(qar)
     return "HEHE"
 
+        
+
+@app.route('/homepage')
+def homepage():
+    # JINJA
+    users = [1,2,3,4,5]
+    return render_template("index.html",dictionary={"users":users})
 
 @app.route('/', methods =["POST"] )
 def get_con():
@@ -64,5 +87,14 @@ def header(response):
     response.headers['Content-type'] = ' application/json'
     return response
 
+def create_new_user(sess_id):
+    gauss_clf = GaussianNB()
+    user = User(session_id=sess_id)
+    db.session.add(user)
+    user_id = User.filter_by(session_id = sess_id).all()[0].id
+    classifier = Classifiers(user_id=user_id,pickled_classifier=gauss_clf)
+    db.session.add(classifier)
+    db.session.commit()
+
 if __name__ == "__main__":
-    app.run(host = "0.0.0.0", port=int(os.environ['PORT']),threaded=True,debug=True)
+    manager.run()

@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 from app import db
+=======
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy.schema import ForeignKey
+from sqlalchemy.types import PickleType
+from sqlalchemy_utils import URLType
+>>>>>>> 014a1d3a2051c3fc158fd0481c986d15ac00c5e5
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -43,6 +51,13 @@ class ListingMappedImages(db.Model):
 
 class UserVisitedListings(db.Model):
     __tablename__="user_visited_listings"
+<<<<<<< HEAD
     id = db.Column(db.Integer,primary_key=True)
     listing = db.Column(db.Integer,db.ForeignKey("listing.id"),nullable=False)
     user_id = db.Column('user_id',db.Integer,db.ForeignKey("users.id"),nullable=False)
+=======
+    id = Column(Integer,primary_key=True)
+    listing = Column(Integer,ForeignKey("listing.id"),nullable=False)
+    user_id = Column("user_id",Integer,ForeignKey("users.id"),nullable=False)
+    like = Column(Boolean,nullable=False)
+>>>>>>> 014a1d3a2051c3fc158fd0481c986d15ac00c5e5

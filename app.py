@@ -1,6 +1,7 @@
 from flask import Flask, request
  
 import json
+import os
 
 app = Flask(__name__)
 
@@ -11,4 +12,4 @@ def get_con():
     
 
 if __name__ == "__main__":
-    app.run(port=80,threaded=True,debug=True)
+    app.run(port=os.environ['PORT'],threaded=True,debug=True)

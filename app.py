@@ -15,4 +15,4 @@ def get_con():
     
 
 if __name__ == "__main__":
-    app.run(port=int(os.environ['PORT']),threaded=True,debug=True)
+    app.run(host = "0.0.0.0", port=int(os.environ['PORT']),threaded=True,debug=True)

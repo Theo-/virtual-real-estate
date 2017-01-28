@@ -46,10 +46,13 @@ def get_airbnb_listing(client_id,**kwargs):
     '''
     url = "https://api.airbnb.com/v2/search_results"
     kwargs['client_id'] = client_id
-    r = requests.get(url,params=kwargs)
-    json_obj = r.json()
-    listings = json_obj['search_results']
-    return listings
+    r = request_error_catching(url,kwargs)
+    if (r != 0):
+        json_obj = r.json()
+        listings = json_obj['search_results']
+        return listings
+    else:
+        return 'ERROR: listing not found'
 
 def get_airbnb_review(client_id, **kwargs):
 

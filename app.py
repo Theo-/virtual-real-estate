@@ -1,4 +1,6 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
+from flask_migrate import Migrate, MigrateCommand
+from flask_script import Manager, Server
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings, Base
@@ -12,6 +14,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] =  'mysql+pymysql://admin:M%m65=N3s-A&ZR3t
 
 # Creating Database
 db = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+migrate = Migrate(app, db)
+server = Server(host="0.0.0.0", port=int(os.environ['PORT']))
+
+
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
+manager.add_command("runserver", Server(),threaded=True,debug=True)
+
+
 Base.metadata.create_all(db)
 
 # Used to create database session
@@ -63,6 +74,11 @@ def testdatabase3():
     print(qar)
     return "HEHE"
 
+@app.route('/homepage')
+def homepage():
+    # JINJA
+    users = [1,2,3,4,5]
+    return render_template("index.html",dictionary={"users":users})
 
 @app.route('/', methods =["POST"] )
 def get_con():
@@ -76,4 +92,4 @@ def header(response):
     return response
 
 if __name__ == "__main__":
-    app.run(host = "0.0.0.0", port=int(os.environ['PORT']),threaded=True,debug=True)
+    manager.run()

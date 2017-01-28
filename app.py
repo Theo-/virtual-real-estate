@@ -4,6 +4,7 @@ from flask_script import Manager, Server
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings, Base
+from sklearn.naive_bayes import GaussianNB
 import json
 import os
 
@@ -29,10 +30,11 @@ Base.metadata.create_all(db)
 Session = sessionmaker()
 Session.configure(bind=db)
 
+gauss_clf = 0
+
 
 @app.before_request
 def check_id():
-    print request
     if request.method == 'POST':
         sess_id = request.args['sessionId']
         session = Session()
@@ -41,6 +43,8 @@ def check_id():
             create_new_user(sess_id)
         else:
             gauss_clf = session.query(Classifiers).filter_by(user_id=user[0].id).first()
+        print "printing CLF"
+        print gauss_clf
 
 @app.route('/homepage')
 def homepage():
@@ -62,6 +66,8 @@ def header(response):
 def create_new_user(sess_id):
     session = Session() # add a new user
     gauss_clf = GaussianNB()
+    print "printing CLF"
+    print gauss_clf
     user = User(session_id=sess_id)
     session.add(user)
     user_id = session.query(User).filter_by(session_id = sess_id).all()[0].id

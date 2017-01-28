@@ -35,12 +35,9 @@ def get_airbnb_listing(client_id,**kwargs):
     kwargs['client_id'] = client_id
     r = requests.get(url,params=kwargs)
     json_obj = r.json()
-    listings_overhead = json_obj['search_results']
-    each_listing = [ listing['listing'] for listing in listings_overhead]
-    return each_listing
+    listings = json_obj['search_results']
+    return listings
 
-
-get_airbnb_listing(client_id,**params)
 
 def get_airbnb_review(client_id, **kwargs):
 

@@ -1,8 +1,7 @@
+from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, request, render_template
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Server
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings, Base
 from sklearn.naive_bayes import GaussianNB
 import json
@@ -14,7 +13,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] =  'mysql+pymysql://admin:M%m65=N3s-A&ZR3t
 
 
 # Creating Database
-db = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 server = Server(host="0.0.0.0", port=int(os.environ['PORT']))
 
@@ -24,11 +23,7 @@ manager.add_command('db', MigrateCommand)
 manager.add_command("runserver", Server(),threaded=True,debug=True)
 
 
-Base.metadata.create_all(db)
-
-# Used to create database session
-Session = sessionmaker()
-Session.configure(bind=db)
+# Base.metadata.create_all(db)
 
 gauss_clf = 0
 
@@ -37,14 +32,47 @@ gauss_clf = 0
 def check_id():
     if request.method == 'POST':
         sess_id = request.args['sessionId']
-        session = Session()
-        user = session.query(User).filter_by(session_id = sess_id).all()
+        var = User.filter_by(session_id = sess_id).all()
+
+        user = User.filter_by(session_id = sess_id).all()
         if len(user) == 0:
             create_new_user(sess_id)
         else:
             gauss_clf = session.query(Classifiers).filter_by(user_id=user[0].id).first()
         print "printing CLF"
         print gauss_clf
+
+
+@app.route('/testdatabase', methods = ["POST"] )
+def testdatabase():
+    if request.method == "POST":
+        id = request.args['ID']
+        session_id = request.args['SESS_ID']
+        user = User(session_id=session_id)
+        db.session.add(user)
+        db.session.commit()
+        return "HAHAHA"
+
+@app.route('/testdatabase2',methods = ["POST"])
+def testdatabase2():
+    dictionary_obj = {"Hello World":"This is me","HAHA":"HAHA"}
+    if request.method == "POST":
+        # Example of adding a pickled object
+        user_id = request.form['user_id']
+        classifier = Classifiers(user_id=user_id,pickled_classifier=dictionary_obj)
+        db.session.add(classifier)
+        db.session.commit()
+        return "WORKED"
+
+
+@app.route('/gettest_pickled')
+def testdatabase3():
+    results = Classifiers.query.all()
+    qar = [ result.pickled_classifier   for result in results]
+    print(qar)
+    return "HEHE"
+
+        
 
 @app.route('/homepage')
 def homepage():
@@ -64,16 +92,15 @@ def header(response):
     return response
 
 def create_new_user(sess_id):
-    session = Session() # add a new user
     gauss_clf = GaussianNB()
     print "printing CLF"
     print gauss_clf
     user = User(session_id=sess_id)
-    session.add(user)
-    user_id = session.query(User).filter_by(session_id = sess_id).all()[0].id
+    db.session.add(user)
+    user_id = User.filter_by(session_id = sess_id).all()[0].id
     classifier = Classifiers(user_id=user_id,pickled_classifier=gauss_clf)
-    session.add(classifier)
-    session.commit()
+    db.session.add(classifier)
+    db.session.commit()
 
 if __name__ == "__main__":
     manager.run()

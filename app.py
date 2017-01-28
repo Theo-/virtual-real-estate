@@ -34,6 +34,19 @@ class Classifiers(Base):
     pickled_classifier = Column(PickleType,nullable=False)
 
 
+
+
+# Description
+# Title
+# Location
+# City
+# Array of Image URLS
+# Rating
+# Number of rooms
+# Price
+# Property Type
+
+
 # Creates the models
 Base.metadata.create_all(db)
 

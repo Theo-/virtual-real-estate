@@ -1,29 +1,12 @@
-from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, request, render_template
-from flask_migrate import Migrate, MigrateCommand
-from flask_script import Manager, Server
-from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings, Base
-from sklearn.naive_bayes import GaussianNB
+from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings
+from init import create_app, db
+#from sklearn.naive_bayes import GaussianNB
 import json
 import os
 
-app = Flask(__name__)
-
-app.config['SQLALCHEMY_DATABASE_URI'] =  'mysql+pymysql://admin:M%m65=N3s-A&ZR3t@mchacks2017.c5se38qdaeio.us-east-1.rds.amazonaws.com:3306/mchacks'
-
-
-# Creating Database
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-server = Server(host="0.0.0.0", port=int(os.environ['PORT']))
-
-
-manager = Manager(app)
-manager.add_command('db', MigrateCommand)
-manager.add_command("runserver", Server(),threaded=True,debug=True)
-
-
-# Base.metadata.create_all(db)
+# Creating app moved to init
+app = create_app()
 
 gauss_clf = 0
 
@@ -103,4 +86,4 @@ def create_new_user(sess_id):
     db.session.commit()
 
 if __name__ == "__main__":
-    manager.run()
+    app.run(host = "0.0.0.0", port=int(os.environ['PORT']),threaded=True,debug=True)

@@ -75,13 +75,20 @@ Base.metadata.create_all(db)
 @app.before_request
 def check_id():
     if request.method == 'POST':
-        check_id(request.args['sessionId'])
+        sess_id = request.args['sessionId']
+        session = Session()
+        var = session.query(User).filter_by(session_id = sess_id).all()
+        if len(var) == 0:
+            user = User(session_id=sess_id)
+            session.add(user)
+            session.commit()
 
-@app.route('/testdatabase', methods =["POST"] )
+
+@app.route('/testdatabase', methods = ["POST"] )
 def testdatabase():
     if request.method == "POST":
-        id = request.form['ID']
-        session_id = request.form['SESS_ID']
+        id = request.args['ID']
+        session_id = request.args['SESS_ID']
         user = User(session_id=session_id)
         session = Session()
         session.add(user)
@@ -110,23 +117,16 @@ def testdatabase3():
     return "HEHE"
 
 
-
-
 @app.route('/', methods =["POST"] )
 def get_con():
     if request.method == "POST":
         json_text = json.dumps({"id": request.args['sessionId']})
-
         return json_text
 
 @app.after_request
 def header(response):
     response.headers['Content-type'] = ' application/json'
     return response
-
-def check_id(sess_id):
-    return 0
-
 
 if __name__ == "__main__":
     app.run(host = "0.0.0.0", port=int(os.environ['PORT']),threaded=True,debug=True)

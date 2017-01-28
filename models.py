@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import PickleType
 from sqlalchemy_utils import URLType
@@ -51,4 +51,5 @@ class UserVisitedListings(Base):
     __tablename__="user_visited_listings"
     id = Column(Integer,primary_key=True)
     listing = Column(Integer,ForeignKey("listing.id"),nullable=False)
-    user_id = Column('user_id',Integer,ForeignKey("users.id"),nullable=False)
+    user_id = Column("user_id",Integer,ForeignKey("users.id"),nullable=False)
+    like = Column(Boolean,nullable=False)

@@ -50,6 +50,10 @@ class Classifiers(Base):
 # Creates the models
 Base.metadata.create_all(db)
 
+@app.before_request
+def check_id():
+    if request.method == 'POST':
+        check_id(request.args['sessionId'])
 
 @app.route('/testdatabase', methods =["POST"] )
 def testdatabase():
@@ -61,7 +65,6 @@ def testdatabase():
         session.add(user)
         session.commit()
         return "HAHAHA"
-
 
 @app.route('/testdatabase2',methods = ["POST"])
 def testdatabase2():
@@ -86,10 +89,6 @@ def testdatabase3():
 
 
 
-# @app.before_request
-# def check_id():
-#     if request.method == 'POST':
-#         return "hello"
 
 @app.route('/', methods =["POST"] )
 def get_con():
@@ -102,6 +101,9 @@ def get_con():
 def header(response):
     response.headers['Content-type'] = ' application/json'
     return response
+
+def check_id(sess_id):
+    return 0
 
 
 if __name__ == "__main__":

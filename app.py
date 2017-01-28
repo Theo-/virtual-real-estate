@@ -1,6 +1,5 @@
 from flask import Flask, request
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from flask_sqlalchemy import SQLAlchemy
 from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings, Base
 import json
 import os
@@ -11,24 +10,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] =  'mysql+pymysql://admin:M%m65=N3s-A&ZR3t
 
 
 # Creating Database
-db = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
-Base.metadata.create_all(db)
-
-# Used to create database session
-Session = sessionmaker()
-Session.configure(bind=db)
-
+db = SQLAlchemy(app)
 
 @app.before_request
 def check_id():
     if request.method == 'POST':
         sess_id = request.args['sessionId']
-        session = Session()
-        var = session.query(User).filter_by(session_id = sess_id).all()
+        var = User.filter_by(session_id = sess_id).all()
         if len(var) == 0:
             user = User(session_id=sess_id)
-            session.add(user)
-            session.commit()
+            db.session.add(user)
+            db.session.commit()
 
 
 @app.route('/testdatabase', methods = ["POST"] )
@@ -37,9 +29,8 @@ def testdatabase():
         id = request.args['ID']
         session_id = request.args['SESS_ID']
         user = User(session_id=session_id)
-        session = Session()
-        session.add(user)
-        session.commit()
+        db.session.add(user)
+        db.session.commit()
         return "HAHAHA"
 
 @app.route('/testdatabase2',methods = ["POST"])
@@ -49,16 +40,14 @@ def testdatabase2():
         # Example of adding a pickled object
         user_id = request.form['user_id']
         classifier = Classifiers(user_id=user_id,pickled_classifier=dictionary_obj)
-        session = Session()
-        session.add(classifier)
-        session.commit()
+        db.session.add(classifier)
+        db.session.commit()
         return "WORKED"
 
 
 @app.route('/gettest_pickled')
 def testdatabase3():
-    session = Session()
-    results = session.query(Classifiers).all()
+    results = Classifiers.query.all()
     qar = [ result.pickled_classifier   for result in results]
     print(qar)
     return "HEHE"

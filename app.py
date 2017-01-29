@@ -112,7 +112,7 @@ def format_response(suggestion):
     return json.dumps({
         "speech": text,
         "displayText": text,
-        "contextOut": { "id": str(suggestion['listing']['id']) }
+        "contextOut": [suggestion]
     })
 
 if __name__ == "__main__":

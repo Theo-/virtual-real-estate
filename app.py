@@ -132,11 +132,11 @@ def pick_a_suggestion(sessionId):
         with open('vectorizer.pkl', 'rb') as f:
             vectorizer = cPickle.load(f)
         description = make_description(detailedDescription)
-        vectors =vectorizer.transform(description)
+        vectors =vectorizer.transform([description])
 
         # Use description to make prediction
         try:
-            score = gauss_clf.predict([vectors.toarray()])
+            score = gauss_clf.predict(vectors.toarray())
         except NotFittedError:
             score = 0
         

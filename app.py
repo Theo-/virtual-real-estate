@@ -97,15 +97,13 @@ def make_description(info):
 
 def pick_a_suggestion(sessionId):
     user = User.query.filter_by(session_id=sessionId).first()
-    price_min = user.budget - 100
-    price_max = user.budget + 100
+    price_max = user.budget + 20
 
     params = {
         "locale":"en-US",
         "currency":"USD",
         "min_bedrooms": user.number_rooms,
         "price_max": price_max,
-        "price_min": price_min,
         "location": user.city,
         "_limit": "50"
     }

@@ -119,7 +119,13 @@ def format_response(suggestion):
     return json.dumps({
         "speech": text,
         "displayText": text,
-        "contextOut": [{ "description": make_description(listingInfo) }]
+        "contextOut": [{ 
+            "name": "apt-description",
+            "lifespan": 1,
+            "parameters": {
+                "description": make_description(listingInfo)
+            }
+        }]
     })
 
 if __name__ == "__main__":

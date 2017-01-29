@@ -57,5 +57,9 @@ def create_new_user(sess_id):
     db.session.commit()
     return gauss_clf
 
+def save_user_parameters(sessionId, params):
+    user = User.query.filter_by(session_id=sessionId).update(dict(city=params['city'],date_period=params['date-period'],number_rooms=params['rooms'],budget=params['budget']))
+    return db.session.commit()
+
 if __name__ == "__main__":
     manager.run()

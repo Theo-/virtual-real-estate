@@ -4,7 +4,7 @@ from flask_migrate import Migrate, MigrateCommand
 from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings
 from init import create_app, db
 from sklearn.naive_bayes import GaussianNB
-# from training import train_classifier
+from training import train_classifier
 import json
 import os
 from basic_request import client_id, get_airbnb_listing, listing_id_example
@@ -83,7 +83,7 @@ def pick_a_suggestion(sessionId):
 
     return results[0]
 
-def format_response(suggestion): 
+def format_response(suggestion):
     text = "I have something for you: "
 
     print suggestion

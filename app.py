@@ -82,7 +82,7 @@ def save_suggestion_feedback(sessionId, context, feedback):
 
     train_classifier([description], [feedback], gauss_clf)
 
-def make_description(suggest):
+def make_description(suggestion):
     return suggestion['listing']['public_address'] + " " + suggestion['listing']['name'] + " " + suggestion['listing']['room_type'] + " " + suggestion['listing']['localized_city'] + " " + suggestion['listing']['neighborhood']
 
 def pick_a_suggestion(sessionId):
@@ -102,6 +102,8 @@ def pick_a_suggestion(sessionId):
 
     results = get_airbnb_listing(client_id, **params)
 
+    # Make predictions
+
     return results[0]
 
 def format_response(suggestion):
@@ -112,7 +114,7 @@ def format_response(suggestion):
     return json.dumps({
         "speech": text,
         "displayText": text,
-        "contextOut": [suggestion]
+        "contextOut": [{ "description": make_description(suggestion) }]
     })
 
 if __name__ == "__main__":

@@ -26,27 +26,21 @@ gauss_clf = 0
 @app.before_request
 def check_id():
     if request.method == 'POST':
-        sess_id = request.form['sessionId']
+        sess_id = request.json['sessionId']
         user = User.query.filter_by(session_id = sess_id).all()
         if len(user) == 0:
             gauss_clf = create_new_user(sess_id)
         else:
             gauss_clf = Classifiers.query.filter_by(user_id=user[0].id).first()
 
-@app.route('/homepage')
-def homepage():
-    # JINJA
-    users = [1,2,3,4,5]
-    return render_template("index.html",dictionary={"users":users})
-
-@app.route('/', methods =["POST"] )
+@app.route('/', methods=["POST"] )
 def get_con():
     if request.method == "POST":
-        json_text = json.dumps({
-        "speech": "Barack Hussein Obama II is the 44th and current President of the United States.",
-        "displayText": "Barack Hussein Obama II is the 44th and current President of the United States, and the first African American to hold the office. Born in Honolulu, Hawaii, Obama is a graduate of Columbia University   and Harvard Law School, where ",
-        })
-        return json_text
+        result = request.json['result']
+        params = result['parameters']
+        if set(("budget", "city", "date-period", "rooms")) <= set(params):
+            #save_user_parameters(params)
+            return json.dumps(params['budget'])
 
 @app.after_request
 def header(response):

@@ -5,6 +5,7 @@ from models import User, Classifiers, Listing, ListingImage, ListingMappedImages
 from init import create_app, db
 from sklearn.naive_bayes import GaussianNB
 from training import train_classifier
+from sklearn.exceptions import NotFittedError
 import json
 import os
 from basic_request import client_id, get_airbnb_listing, listing_id_example, get_airbnb_listing_info
@@ -103,15 +104,43 @@ def pick_a_suggestion(sessionId):
         "price_max": price_max,
         "price_min": price_min,
         "location": user.city,
-        "_limit": "50"
+        "_limit": "5"
     }
 
     results = get_airbnb_listing(client_id, **params)
 
     # Make predictions
+    user = User.query.filter_by(session_id=sessionId).first()
+    gauss_object = Classifiers.query.filter_by(user_id=user.id).first()
+    gauss_clf = gauss_object.pickled_classifier
 
+    seenListings = UserVisitedListings.query.filter_by(user_id=user.id).all()
+    seenIds = [listing.listing for listing in seenListings]
 
-    return results[0]
+    highestScore = -1
+    highestResult = None
+    for result in results:
+        if int(result['listing']['id']) in seenIds:
+            continue
+
+        params = {
+            "listing_id": result['listing']['id'],
+            "locale": "en-US"
+        }
+        detailedDescription = get_airbnb_listing_info(client_id, **params)
+        description = make_description(detailedDescription)
+
+        # Use description to make prediction
+        try:
+            score = gauss_clf.predict([description])
+        except NotFittedError:
+            score = 0
+        
+        if highestScore < score:
+            highestScore = score
+            highestResult = result
+
+    return results[0] if highestResult == None else highestResult
 
 def format_response(suggestion):
     text = "I have something for you: https://fr.airbnb.ca/rooms/" + str(suggestion['listing']['id'])

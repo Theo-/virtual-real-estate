@@ -7,7 +7,7 @@ from sklearn.naive_bayes import GaussianNB
 from training import train_classifier
 import json
 import os
-from basic_request import client_id, get_airbnb_listing, listing_id_example
+from basic_request import client_id, get_airbnb_listing, listing_id_example, get_airbnb_listing_info
 
 # Creating app, migration tool and manager
 app = create_app()
@@ -82,8 +82,8 @@ def save_suggestion_feedback(sessionId, context, feedback):
 
     train_classifier([description], [feedback], gauss_clf)
 
-def make_description(suggestion):
-    return suggestion['listing']['public_address'] + " " + suggestion['listing']['name'] + " " + suggestion['listing']['room_type'] + " " + suggestion['listing']['localized_city'] + " " + suggestion['listing']['neighborhood']
+def make_description(info):
+    return info['description'] + ' ' + info['neighborhood_overview'] + ' ' + info['space'] + ' ' + info['name']
 
 def pick_a_suggestion(sessionId):
     user = User.query.filter_by(session_id=sessionId).first()
@@ -109,12 +109,17 @@ def pick_a_suggestion(sessionId):
 def format_response(suggestion):
     text = "I have something for you: https://fr.airbnb.ca/rooms/" + str(suggestion['listing']['id'])
 
-    print suggestion
+    params = {
+        "listing_id": suggestion['listing']['id'],
+        "locale": "en-US"
+    }
+
+    listingInfo = get_airbnb_listing_info(client_id, **params)
 
     return json.dumps({
         "speech": text,
         "displayText": text,
-        "contextOut": [{ "description": make_description(suggestion) }]
+        "contextOut": [{ "description": make_description(listingInfo) }]
     })
 
 if __name__ == "__main__":

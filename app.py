@@ -147,7 +147,8 @@ def pick_a_suggestion(sessionId):
     return results[0] if highestResult == None else highestResult
 
 def format_response(suggestion):
-    text = "I have something for you: https://airbnb.ca/rooms/" + str(suggestion['listing']['id'])
+    url = "https://airbnb.ca/rooms/" + str(suggestion['listing']['id'])
+    text = "I have something for you: "+url
 
     params = {
         "listing_id": suggestion['listing']['id'],
@@ -156,9 +157,33 @@ def format_response(suggestion):
 
     listingInfo = get_airbnb_listing_info(client_id, **params)
 
+    facebook_message = {
+        "attachment": {
+            "type": "template",
+            "payload": {
+                "template_type": "generic",
+                "elements": [
+                    {
+                        "title": listingInfo['summary'],
+                        "image_url": listingInfo['picture_url'],
+                        "subtitle": text,
+                        "buttons": [
+                            {
+                                "type": "web_url",
+                                "url": url,
+                                "title": "View Details"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+
     return json.dumps({
         "speech": text,
         "displayText": text,
+        "data": { "facebook": facebook_message },
         "contextOut": [{ 
             "name": "apt-description",
             "lifespan": 3,

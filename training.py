@@ -7,7 +7,7 @@ def train_classifier(features,y,clf):
 
     vectors =vectorizer.transform(features)
 
-    clf.partial_fit(features, y)
+    clf.partial_fit(vectors.toarray(), y, classes=[0,1])
 
 
 

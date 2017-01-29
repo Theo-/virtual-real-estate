@@ -41,17 +41,20 @@ def get_con():
         result = request.json['result']
         params = result['parameters']
         intentName = result['metadata']['intentName']
+        sessionId = request.json['sessionId']
 
         if intentName == "StartAparmentSearch":
             if set(("budget", "city", "date-period", "rooms")) <= set(params):
-                sessionId = request.json['sessionId']
                 save_user_parameters(sessionId, params)
                 suggestion = pick_a_suggestion(sessionId)
                 return format_response(suggestion)
                 
         if intentName == "SuggestionFeedback":
-            positive = params['Position'] != ''
-            save_suggestion_feedback()
+            positive = params['Positive'] != ''
+            context = result['contexts'][0]['parameters']
+            save_suggestion_feedback(sessionId, context, positive)
+            suggestion = pick_a_suggestion(sessionId)
+            return format_response(suggestion)
 
 @app.after_request
 def header(response):
@@ -74,13 +77,15 @@ def save_user_parameters(sessionId, params):
 
 def save_suggestion_feedback(sessionId, context, feedback):
     user = User.query.filter_by(session_id=sessionId).first()
-    apartment_details = get_list
+    gauss_object = Classifiers.query.filter_by(user_id=user.id).all()[0]
+    gauss_clf = gauss_object.pickled_classifier
 
-    description = make_description(suggestion)
     classified = 1 if feedback else 0
-    visited = UserVisitedListings(user_id=user.id,listing=context['listing']['id'], like=feedback)
+    visited = UserVisitedListings(user_id=user.id,listing=context['id'], like=feedback)
 
-    train_classifier([description], [feedback], gauss_clf)
+    train_classifier([context['description']], [classified], gauss_clf)
+    gauss_object.pickled_classifier = gauss_clf
+    db.session.commit()
 
 def make_description(info):
     return info['description'] + ' ' + info['neighborhood_overview'] + ' ' + info['space'] + ' ' + info['name']
@@ -104,6 +109,7 @@ def pick_a_suggestion(sessionId):
 
     # Make predictions
 
+
     return results[0]
 
 def format_response(suggestion):
@@ -121,9 +127,10 @@ def format_response(suggestion):
         "displayText": text,
         "contextOut": [{ 
             "name": "apt-description",
-            "lifespan": 1,
+            "lifespan": 3,
             "parameters": {
-                "description": make_description(listingInfo)
+                "description": make_description(listingInfo),
+                "id": listingInfo['id']
             }
         }]
     })

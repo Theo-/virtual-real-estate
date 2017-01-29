@@ -1,6 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Boolean
-from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import PickleType
 from sqlalchemy_utils import URLType
 from flask_sqlalchemy import SQLAlchemy
@@ -15,7 +14,7 @@ class User(db.Model):
 class Classifiers(db.Model):
     __tablename__ = "classifiers"
     id = db.Column(db.Integer,primary_key=True)
-    user_id = db.Column('user_id',db.Integer,db.ForeignKey("users.id"))
+    user_id = db.Column('user_id',db.Integer)
     pickled_classifier = db.Column(db.PickleType)
 
 class Listing(db.Model):
@@ -43,13 +42,13 @@ class ListingMappedImages(db.Model):
     '''
     __tablename__ = "listing_mapped_images"
     id = db.Column(db.Integer,primary_key=True)
-    listing = db.Column(db.Integer,db.ForeignKey("listing.id"))
-    listing_image = db.Column(db.Integer,db.ForeignKey("listing_image.id"))
+    listing = db.Column(db.Integer)
+    listing_image = db.Column(db.Integer)
 
 
 class UserVisitedListings(db.Model):
     __tablename__="user_visited_listings"
     id = db.Column(db.Integer,primary_key=True)
-    listing = db.Column(db.Integer,db.ForeignKey("listing.id"))
-    user_id = db.Column('user_id',db.Integer,db.ForeignKey("users.id"))
+    listing = db.Column(db.Integer)
+    user_id = db.Column('user_id',db.Integer)
     like = db.Column('like',db.Boolean)

@@ -4,6 +4,7 @@ from flask_migrate import Migrate, MigrateCommand
 from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings
 from init import create_app, db
 from sklearn.naive_bayes import GaussianNB
+from training import train_classifier
 import json
 import os
 

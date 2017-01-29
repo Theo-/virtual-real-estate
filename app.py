@@ -77,14 +77,15 @@ def save_user_parameters(sessionId, params):
 
 def save_suggestion_feedback(sessionId, context, feedback):
     user = User.query.filter_by(session_id=sessionId).first()
-    gauss_object = Classifiers.query.filter_by(user_id=user.id).all()[0]
+    gauss_object = Classifiers.query.filter_by(user_id=user.id).first()
     gauss_clf = gauss_object.pickled_classifier
 
     classified = 1 if feedback else 0
     visited = UserVisitedListings(user_id=user.id,listing=context['id'], like=feedback)
 
     train_classifier([context['description']], [classified], gauss_clf)
-    gauss_object.pickled_classifier = gauss_clf
+    Classifiers.query.filter_by(user_id=user.id).update(dict(pickled_classifier=gauss_clf))
+    db.session.add(visited)
     db.session.commit()
 
 def make_description(info):

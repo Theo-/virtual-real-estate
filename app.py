@@ -17,7 +17,7 @@ manager.add_command('db', MigrateCommand)
 
 # Creating server command manager.
 server = Server(host="0.0.0.0", port=int(os.environ['PORT']))
-manager.add_command("runserver", Server(),threaded=True,debug=True)
+manager.add_command("runserver", Server(host="0.0.0.0", port=int(os.environ['PORT'])),threaded=True,debug=True)
 
 
 gauss_clf = 0
@@ -26,7 +26,7 @@ gauss_clf = 0
 @app.before_request
 def check_id():
     if request.method == 'POST':
-        sess_id = request.args['sessionId']
+        sess_id = request.form['sessionId']
         user = User.query.filter_by(session_id = sess_id).all()
         if len(user) == 0:
             gauss_clf = create_new_user(sess_id)
@@ -42,12 +42,15 @@ def homepage():
 @app.route('/', methods =["POST"] )
 def get_con():
     if request.method == "POST":
-        json_text = json.dumps({"id": request.args['sessionId']})
+        json_text = json.dumps({
+        "speech": "Barack Hussein Obama II is the 44th and current President of the United States.",
+        "displayText": "Barack Hussein Obama II is the 44th and current President of the United States, and the first African American to hold the office. Born in Honolulu, Hawaii, Obama is a graduate of Columbia University   and Harvard Law School, where ",
+        })
         return json_text
 
 @app.after_request
 def header(response):
-    response.headers['Content-type'] = ' application/json'
+    response.headers['Content-type'] = 'application/json'
     return response
 
 def create_new_user(sess_id):

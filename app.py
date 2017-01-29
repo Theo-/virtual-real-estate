@@ -84,23 +84,13 @@ def pick_a_suggestion(sessionId):
     return results[0]
 
 def format_response(suggestion):
-    text = "I have something for you: "
+    text = "I have something for you: https://fr.airbnb.ca/rooms/" + str(suggestion['listing']['id'])
 
     print suggestion
 
     return json.dumps({
         "speech": text,
-        "displayText": text,
-        "data": {
-            "facebook": {
-                "attachment": {
-                    "type": "file",
-                    "payload": {
-                        "url": suggestion['listing']['xl_picture_urls'][0]
-                    }
-                }
-            }
-        }
+        "displayText": text
     })
 
 if __name__ == "__main__":

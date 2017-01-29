@@ -52,6 +52,10 @@ def get_con():
                 save_user_parameters(sessionId, params)
                 suggestion = pick_a_suggestion(sessionId)
                 return format_response(suggestion)
+        
+        if intentName == "PickApartment":
+            suggestion = pick_a_suggestion(sessionId)
+            return format_response(suggestion)
                 
         if intentName == "SuggestionFeedback":
             positive = params['Positive'] != ''

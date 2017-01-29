@@ -9,6 +9,10 @@ class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer,primary_key=True)
     session_id = db.Column(db.String(300)) # 300 chosen randomly.
+    budget = db.Column(db.Integer)
+    city = db.Column(db.String(300))
+    date_period = db.Column(db.String(300))
+    number_rooms = db.Column(db.Integer)
 
 
 class Classifiers(db.Model):

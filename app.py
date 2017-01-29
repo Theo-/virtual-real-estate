@@ -8,6 +8,7 @@ from training import train_classifier
 from sklearn.exceptions import NotFittedError
 import json
 import os
+import cPickle
 from basic_request import client_id, get_airbnb_listing, listing_id_example, get_airbnb_listing_info
 
 # Creating app, migration tool and manager
@@ -128,11 +129,14 @@ def pick_a_suggestion(sessionId):
             "locale": "en-US"
         }
         detailedDescription = get_airbnb_listing_info(client_id, **params)
+        with open('vectorizer.pkl', 'rb') as f:
+            vectorizer = cPickle.load(f)
         description = make_description(detailedDescription)
+        vectors =vectorizer.transform(description)
 
         # Use description to make prediction
         try:
-            score = gauss_clf.predict([description])
+            score = gauss_clf.predict([vectors.toarray()])
         except NotFittedError:
             score = 0
         

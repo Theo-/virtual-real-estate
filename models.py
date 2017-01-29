@@ -17,7 +17,6 @@ class Classifiers(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     user_id = db.Column('user_id',db.Integer,db.ForeignKey("users.id"))
     pickled_classifier = db.Column(db.PickleType)
-    vectorizer = db.Column(db.PickleType)
 
 class Listing(db.Model):
     __tablename__="listing"

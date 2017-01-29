@@ -8,6 +8,7 @@ from training import train_classifier
 from sklearn.exceptions import NotFittedError
 import json
 import os
+from threading import Thread
 import cPickle
 from basic_request import client_id, get_airbnb_listing, listing_id_example, get_airbnb_listing_info
 
@@ -122,6 +123,10 @@ def pick_a_suggestion(sessionId):
     highestScore = -1
     highestResult = None
     noneHit = 0
+    scanned = 0
+
+    thread = Thread(target = download_all, args = ([results]))
+    thread.start()
 
     for result in results:
         if int(result['listing']['id']) in seenIds:
@@ -132,6 +137,10 @@ def pick_a_suggestion(sessionId):
             noneHit = noneHit + 1
 
         if noneHit > 2:
+            break
+
+        scanned = scanned + 1
+        if scanned > 10:
             break
 
         with open('vectorizer.pkl', 'rb') as f:
@@ -158,11 +167,21 @@ def get_airbnb_listing_info_cache(airbnb_id):
     }
 
     if airbnb_id in mem_cache_dict:
+        print 'cache hit'
         return mem_cache_dict[airbnb_id], 1
 
+    print 'cache miss'
     listing = get_airbnb_listing_info(client_id, **params)
     mem_cache_dict[airbnb_id] = listing
     return listing, 0
+
+def download_all(listings):
+    print 'Starting download!'
+    for listing in listings:
+        print 'Download ', listing['listing']['id']
+        get_airbnb_listing_info_cache(listing['listing']['id'])
+
+    print 'Downloaded finished'
 
 def format_response(suggestion):
     url = "https://airbnb.ca/rooms/" + str(suggestion['listing']['id'])

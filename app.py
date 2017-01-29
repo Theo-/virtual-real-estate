@@ -32,40 +32,6 @@ def check_id():
             gauss_clf = create_new_user(sess_id)
         else:
             gauss_clf = Classifiers.query.filter_by(user_id=user[0].id).first()
-        print "printing CLF"
-        print gauss_clf
-
-
-@app.route('/testdatabase', methods = ["POST"] )
-def testdatabase():
-    if request.method == "POST":
-        id = request.args['ID']
-        session_id = request.args['SESS_ID']
-        user = User(session_id=session_id)
-        db.session.add(user)
-        db.session.commit()
-        return "HAHAHA"
-
-@app.route('/testdatabase2',methods = ["POST"])
-def testdatabase2():
-    dictionary_obj = {"Hello World":"This is me","HAHA":"HAHA"}
-    if request.method == "POST":
-        # Example of adding a pickled object
-        user_id = request.form['user_id']
-        classifier = Classifiers(user_id=user_id,pickled_classifier=dictionary_obj)
-        db.session.add(classifier)
-        db.session.commit()
-        return "WORKED"
-
-
-@app.route('/gettest_pickled')
-def testdatabase3():
-    results = Classifiers.query.all()
-    qar = [ result.pickled_classifier   for result in results]
-    print(qar)
-    return "HEHE"
-
-
 
 @app.route('/homepage')
 def homepage():

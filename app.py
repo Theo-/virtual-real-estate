@@ -106,7 +106,7 @@ def pick_a_suggestion(sessionId):
         "price_max": price_max,
         "price_min": price_min,
         "location": user.city,
-        "_limit": "5"
+        "_limit": "50"
     }
 
     results = get_airbnb_listing(client_id, **params)
@@ -131,7 +131,7 @@ def pick_a_suggestion(sessionId):
         if not isHit:
             noneHit = noneHit + 1
 
-        if noneHit > 3:
+        if noneHit > 2:
             break
 
         with open('vectorizer.pkl', 'rb') as f:

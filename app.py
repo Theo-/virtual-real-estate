@@ -29,8 +29,6 @@ gauss_clf = 0
 def check_id():
     if request.method == 'POST':
         sess_id = request.args['sessionId']
-        var = User.filter_by(session_id = sess_id).all()
-
         user = User.filter_by(session_id = sess_id).all()
         if len(user) == 0:
             create_new_user(sess_id)
@@ -87,17 +85,6 @@ def get_con():
 def header(response):
     response.headers['Content-type'] = ' application/json'
     return response
-
-def create_new_user(sess_id):
-    gauss_clf = GaussianNB()
-    print "printing CLF"
-    print gauss_clf
-    user = User(session_id=sess_id)
-    db.session.add(user)
-    user_id = User.filter_by(session_id = sess_id).all()[0].id
-    classifier = Classifiers(user_id=user_id,pickled_classifier=gauss_clf)
-    db.session.add(classifier)
-    db.session.commit()
 
 if __name__ == "__main__":
     manager.run()

@@ -50,7 +50,7 @@ def get_con():
 
 @app.after_request
 def header(response):
-    response.headers['Content-type'] = ' application/json'
+    response.headers['Content-type'] = 'application/json'
     return response
 
 def create_new_user(sess_id):

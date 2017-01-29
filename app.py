@@ -164,8 +164,8 @@ def format_response(suggestion):
                 "template_type": "generic",
                 "elements": [
                     {
-                        "title": listingInfo['summary'],
-                        "image_url": listingInfo['picture_url'],
+                        "title": listingInfo['name'],
+                        "image_url": listingInfo['summary'],
                         "subtitle": text,
                         "buttons": [
                             {

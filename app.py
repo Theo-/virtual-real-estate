@@ -4,7 +4,7 @@ from flask_migrate import Migrate, MigrateCommand
 from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings
 from init import create_app, db
 from sklearn.naive_bayes import GaussianNB
-from training import train_classifier
+# from training import train_classifier
 import json
 import os
 
@@ -17,8 +17,8 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 # Creating server command manager.
-server = Server(host="0.0.0.0", port=int(os.environ['PORT']))
-manager.add_command("runserver", Server(host="0.0.0.0", port=int(os.environ['PORT'])),threaded=True,debug=True)
+server = Server(host="0.0.0.0", port=5000)
+manager.add_command("runserver", Server(host="0.0.0.0", port=5000),threaded=True,debug=True)
 
 
 gauss_clf = 0

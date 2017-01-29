@@ -1,6 +1,6 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pandas as pd
-import pickle
+import cPickle
 
 listings = pd.read_csv("listings.csv")
 
@@ -15,8 +15,8 @@ vec.fit(cleanedList)
 #
 # x = vec.get_feature_names()
 # print x
-
-pickle.dumps("vectorizer.pkl")
+with open("vectorizer.pkl",'wb') as fileV:
+    cPickle.dump(vec, fileV)
 
 
 

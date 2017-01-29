@@ -26,20 +26,14 @@ gauss_clf = 0
 @app.before_request
 def check_id():
     if request.method == 'POST':
-        sess_id = request.form['sessionId']
+        sess_id = request.json['sessionId']
         user = User.query.filter_by(session_id = sess_id).all()
         if len(user) == 0:
             gauss_clf = create_new_user(sess_id)
         else:
             gauss_clf = Classifiers.query.filter_by(user_id=user[0].id).first()
 
-@app.route('/homepage')
-def homepage():
-    # JINJA
-    users = [1,2,3,4,5]
-    return render_template("index.html",dictionary={"users":users})
-
-@app.route('/', methods =["POST"] )
+@app.route('/', methods=["POST"] )
 def get_con():
     if request.method == "POST":
         json_text = json.dumps({

@@ -21,7 +21,7 @@ parts/
 sdist/
 var/
 *.egg-info/
-.installed.cfg
+ainstalled.cfg
 *.egg
 
 # PyInstaller
@@ -87,3 +87,7 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+
+# Migrations
+

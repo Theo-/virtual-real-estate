@@ -1,12 +1,19 @@
 from flask import Flask, request, render_template
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
 from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings
 from init import create_app, db
 #from sklearn.naive_bayes import GaussianNB
 import json
 import os
 
-# Creating app moved to init
+# Creating app, migration tool and manager
 app = create_app()
+migrate = Migrate(app, db)
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
+
+
 
 gauss_clf = 0
 
@@ -86,4 +93,4 @@ def create_new_user(sess_id):
     db.session.commit()
 
 if __name__ == "__main__":
-    app.run(host = "0.0.0.0", port=int(os.environ['PORT']),threaded=True,debug=True)
+    manager.run()

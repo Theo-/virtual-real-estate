@@ -65,8 +65,18 @@ def save_user_parameters(sessionId, params):
     user = User.query.filter_by(session_id=sessionId).update(dict(city=params['city'],date_period=params['date-period'],number_rooms=params['rooms'],budget=params['budget']['amount']))
     return db.session.commit()
 
-def save_suggestion_feedback(sessionId):
+def save_suggestion_feedback(sessionId, id, feedback):
+    user = User.query.filter_by(session_id=sessionId).first()
+    apartment_details = get_list
+
+    description = make_description(suggestion)
+
+    train_classifier([], gauss_clf)
+
     pass
+
+def make_description(suggest):
+    return suggestion['listing']['public_address'] + " " + suggestion['listing']['name'] + " " + suggestion['listing']['room_type'] + " " + suggestion['listing']['localized_city'] + " " + suggestion['listing']['neighborhood']
 
 def pick_a_suggestion(sessionId):
     user = User.query.filter_by(session_id=sessionId).first()
@@ -94,7 +104,8 @@ def format_response(suggestion):
 
     return json.dumps({
         "speech": text,
-        "displayText": text
+        "displayText": text,
+        "contextOut": suggestion
     })
 
 if __name__ == "__main__":

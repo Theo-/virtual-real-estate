@@ -105,7 +105,7 @@ def pick_a_suggestion(sessionId):
         "price_max": price_max,
         "price_min": price_min,
         "location": user.city,
-        "_limit": "15"
+        "_limit": "8"
     }
 
     results = get_airbnb_listing(client_id, **params)

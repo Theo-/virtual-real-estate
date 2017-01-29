@@ -40,7 +40,7 @@ def get_con():
         result = request.json['result']
         params = result['parameters']
         if set(("budget", "city", "date-period", "rooms")) <= set(params):
-            #save_user_parameters(params)
+            save_user_parameters(request.json['sessionId'], params)
             return json.dumps(params['budget'])
 
 @app.after_request
@@ -59,7 +59,7 @@ def create_new_user(sess_id):
     return gauss_clf
 
 def save_user_parameters(sessionId, params):
-    user = User.query.filter_by(session_id=sessionId).update(dict(city=params['city'],date_period=params['date-period'],number_rooms=params['rooms'],budget=params['budget']))
+    user = User.query.filter_by(session_id=sessionId).update(dict(city=params['city'],date_period=params['date-period'],number_rooms=params['rooms'],budget=params['budget']['amount']))
     return db.session.commit()
 
 if __name__ == "__main__":

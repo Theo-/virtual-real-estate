@@ -8,7 +8,7 @@ guests to be 2, maximum price of $400 and in the Montreal area (longitude and la
 
 params = {"locale":"en-US",
           "currency":"USD",
-          "guests":"2",
+          "min_bedrooms":"2",
           "price_max":"400",
           "location":"Montreal",
           "_limit":"10"}

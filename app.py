@@ -40,11 +40,18 @@ def get_con():
     if request.method == "POST":
         result = request.json['result']
         params = result['parameters']
-        if set(("budget", "city", "date-period", "rooms")) <= set(params):
-            sessionId = request.json['sessionId']
-            save_user_parameters(sessionId, params)
-            suggestion = pick_a_suggestion(sessionId)
-            return format_response(suggestion)
+        intentName = result['metadata']['intentName']
+
+        if intentName == "StartAparmentSearch":
+            if set(("budget", "city", "date-period", "rooms")) <= set(params):
+                sessionId = request.json['sessionId']
+                save_user_parameters(sessionId, params)
+                suggestion = pick_a_suggestion(sessionId)
+                return format_response(suggestion)
+                
+        if intentName == "SuggestionFeedback":
+            positive = params['Position'] != ''
+            save_suggestion_feedback()
 
 @app.after_request
 def header(response):
@@ -65,15 +72,15 @@ def save_user_parameters(sessionId, params):
     user = User.query.filter_by(session_id=sessionId).update(dict(city=params['city'],date_period=params['date-period'],number_rooms=params['rooms'],budget=params['budget']['amount']))
     return db.session.commit()
 
-def save_suggestion_feedback(sessionId, id, feedback):
+def save_suggestion_feedback(sessionId, context, feedback):
     user = User.query.filter_by(session_id=sessionId).first()
     apartment_details = get_list
 
     description = make_description(suggestion)
+    classified = 1 if feedback else 0
+    visited = UserVisitedListings(user_id=user.id,listing=context['listing']['id'], like=feedback)
 
-    train_classifier([], gauss_clf)
-
-    pass
+    train_classifier([description], [feedback], gauss_clf)
 
 def make_description(suggest):
     return suggestion['listing']['public_address'] + " " + suggestion['listing']['name'] + " " + suggestion['listing']['room_type'] + " " + suggestion['listing']['localized_city'] + " " + suggestion['listing']['neighborhood']
@@ -105,7 +112,7 @@ def format_response(suggestion):
     return json.dumps({
         "speech": text,
         "displayText": text,
-        "contextOut": suggestion
+        "contextOut": { "id": str(suggestion['listing']['id']) }
     })
 
 if __name__ == "__main__":

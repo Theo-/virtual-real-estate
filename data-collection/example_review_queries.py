@@ -8,10 +8,12 @@ guests to be 2, maximum price of $400 and in the Montreal area (longitude and la
 
 params = {"locale":"en-US",
           "currency":"USD",
-          "min_bedrooms":"2",
+          "guests":"2",
           "price_max":"400",
           "location":"Montreal",
-          "_limit":"10"}
+          "checkin_date":"2017-04-01T00:00:00.000-0700",
+          "checkout_date":"2017-04-02T00:00:00.000-0700",
+          "_limit":"50"}
 
 query_dict = get_airbnb_listing(client_id,**params)
 

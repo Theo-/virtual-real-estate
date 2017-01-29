@@ -31,7 +31,7 @@ def check_id():
         if len(user) == 0:
             gauss_clf = create_new_user(sess_id)
         else:
-            gauss_clf = session.query(Classifiers).filter_by(user_id=user[0].id).first()
+            gauss_clf = Classifiers.query.filter_by(user_id=user[0].id).first()
         print "printing CLF"
         print gauss_clf
 

@@ -147,7 +147,7 @@ def pick_a_suggestion(sessionId):
     return results[0] if highestResult == None else highestResult
 
 def format_response(suggestion):
-    text = "I have something for you: https://fr.airbnb.ca/rooms/" + str(suggestion['listing']['id'])
+    text = "I have something for you: https://airbnb.ca/rooms/" + str(suggestion['listing']['id'])
 
     params = {
         "listing_id": suggestion['listing']['id'],

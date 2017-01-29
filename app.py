@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template
-from flask_script import Manager
+from flask_script import Manager, Server
 from flask_migrate import Migrate, MigrateCommand
 from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings
 from init import create_app, db
@@ -10,8 +10,15 @@ import os
 # Creating app, migration tool and manager
 app = create_app()
 migrate = Migrate(app, db)
+
+# creating a manager for database.
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
+
+# Creating server command manager.
+server = Server(host="0.0.0.0", port=int(os.environ['PORT']))
+manager.add_command("runserver", Server(),threaded=True,debug=True)
+
 
 
 

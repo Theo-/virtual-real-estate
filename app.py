@@ -18,8 +18,8 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 # Creating server command manager.
-server = Server(host="0.0.0.0", port=5000)
-manager.add_command("runserver", Server(host="0.0.0.0", port=5000),threaded=True,debug=True)
+server = Server(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
+manager.add_command("runserver", Server(host="0.0.0.0", port=int(os.environ.get('PORT', 5000))),threaded=True,debug=True)
 
 
 gauss_clf = 0

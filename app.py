@@ -25,6 +25,7 @@ manager.add_command("runserver", Server(host="0.0.0.0", port=int(os.environ.get(
 
 
 gauss_clf = 0
+mem_cache_dict = {}
 
 
 @app.before_request
@@ -120,15 +121,19 @@ def pick_a_suggestion(sessionId):
 
     highestScore = -1
     highestResult = None
+    noneHit = 0
+
     for result in results:
         if int(result['listing']['id']) in seenIds:
             continue
 
-        params = {
-            "listing_id": result['listing']['id'],
-            "locale": "en-US"
-        }
-        detailedDescription = get_airbnb_listing_info(client_id, **params)
+        detailedDescription, isHit = get_airbnb_listing_info_cache(result['listing']['id'])
+        if not isHit:
+            noneHit = noneHit + 1
+
+        if noneHit > 3:
+            break
+
         with open('vectorizer.pkl', 'rb') as f:
             vectorizer = cPickle.load(f)
         description = make_description(detailedDescription)
@@ -146,16 +151,24 @@ def pick_a_suggestion(sessionId):
 
     return results[0] if highestResult == None else highestResult
 
+def get_airbnb_listing_info_cache(airbnb_id):
+    params = {
+        "listing_id": airbnb_id,
+        "locale": "en-US"
+    }
+
+    if airbnb_id in mem_cache_dict:
+        return mem_cache_dict[airbnb_id], 1
+
+    listing = get_airbnb_listing_info(client_id, **params)
+    mem_cache_dict[airbnb_id] = listing
+    return listing, 0
+
 def format_response(suggestion):
     url = "https://airbnb.ca/rooms/" + str(suggestion['listing']['id'])
     text = "I have something for you: "+url
 
-    params = {
-        "listing_id": suggestion['listing']['id'],
-        "locale": "en-US"
-    }
-
-    listingInfo = get_airbnb_listing_info(client_id, **params)
+    listingInfo, isHit = get_airbnb_listing_info_cache(suggestion['listing']['id'])
 
     facebook_message = {
         "attachment": {
@@ -165,8 +178,8 @@ def format_response(suggestion):
                 "elements": [
                     {
                         "title": listingInfo['name'],
-                        "image_url": listingInfo['summary'],
-                        "subtitle": text,
+                        "image_url": listingInfo['picture_url'],
+                        "subtitle": listingInfo['summary'],
                         "buttons": [
                             {
                                 "type": "web_url",

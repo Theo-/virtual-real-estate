@@ -125,9 +125,6 @@ def pick_a_suggestion(sessionId):
     noneHit = 0
     scanned = 0
 
-    thread = Thread(target = download_all, args = ([results]))
-    thread.start()
-
     for result in results:
         if int(result['listing']['id']) in seenIds:
             continue
@@ -137,6 +134,8 @@ def pick_a_suggestion(sessionId):
             noneHit = noneHit + 1
 
         if noneHit > 2:
+            thread = Thread(target = download_all, args = ([results]))
+            thread.start()
             break
 
         scanned = scanned + 1

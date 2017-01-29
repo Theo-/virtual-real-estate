@@ -197,7 +197,7 @@ def format_response(suggestion):
                 "template_type": "generic",
                 "elements": [
                     {
-                        "title": listingInfo['name'],
+                        "title": "I found you a dope place bruh: "+listingInfo['name'],
                         "image_url": listingInfo['picture_url'],
                         "subtitle": listingInfo['summary'],
                         "buttons": [

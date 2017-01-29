@@ -1,9 +1,15 @@
 from sklearn.naive_bayes import GaussianNB
-import pickle
+import cPickle
 
-def train_classifier():
+def train_classifier(features,y,clf):
     with open('vectorizer.pkl', 'rb') as f:
-        vectorizer = pickle.load(f)
-    x = vectorizer.get_feature_names()
-    print x
-train_classifier()
+        vectorizer = cPickle.load(f)
+
+    vectors =vectorizer.transform(features)
+
+    clf.partial_fit(features, y)
+
+
+
+
+

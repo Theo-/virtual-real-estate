@@ -20,8 +20,6 @@ server = Server(host="0.0.0.0", port=int(os.environ['PORT']))
 manager.add_command("runserver", Server(),threaded=True,debug=True)
 
 
-
-
 gauss_clf = 0
 
 

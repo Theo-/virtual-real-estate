@@ -139,7 +139,7 @@ def pick_a_suggestion(sessionId):
             break
 
         scanned = scanned + 1
-        if scanned > 10:
+        if scanned > 5:
             break
 
         with open('vectorizer.pkl', 'rb') as f:

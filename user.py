@@ -13,7 +13,7 @@ def create_user(session_id):
     return new_user
 
 def find_user(id):
-    user = db.session.query(User).filter_by(id=id).first()
+    user = User.query.filter_by(id=id).first()
     return user
 
 def delete_user(id):

@@ -4,7 +4,7 @@ AirBnBro learns your style and analysis thousands of listing on AirBnb. It sends
 
 Example of a conversation:
 
-![Conversation 1](screenshots/conv1.png)
+![Conversation 1](screenshots/conv1_updated.png)
 
 # AirBnBro learns
 

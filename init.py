@@ -1,12 +1,13 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import os
 
 
 db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] =  'mysql+pymysql://app:CMZ4nEB4b4pSYMAj@mchacks2017.c5se38qdaeio.us-east-1.rds.amazonaws.com:3306/mchacks'
+    app.config['SQLALCHEMY_DATABASE_URI'] =  os.environ['DATABASE_URI']
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
     db.init_app(app)

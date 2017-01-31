@@ -46,10 +46,10 @@ def get_con():
         params = result['parameters']
 
         # If no intent is defined
-        try:
-            intentName = result['metadata']['intentName']
-        except KeyError:   
-            return json.dumps({ "displayText": "What was that ?" });
+        if "intentName" not in result['metadata'].keys:
+             return json.dumps({ "displayText": "What was that ?" });
+        
+        intentName = result['metadata']['intentName']   
 
         sessionId = request.json['sessionId']
 

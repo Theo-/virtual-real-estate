@@ -10,10 +10,10 @@ import json
 import os
 from threading import Thread
 import cPickle
-import redis
+#import redis
 from basic_request import client_id, get_airbnb_listing, listing_id_example, get_airbnb_listing_info
 
-redisClient = redis.StrictRedis(host=os.environ['REDIS_URL'], port=6379, db=0)
+#redisClient = redis.StrictRedis(host=os.environ['REDIS_URL'], port=6379, db=0)
 
 # Creating app, migration tool and manager
 app = create_app()
@@ -182,7 +182,7 @@ def get_airbnb_listing_info_cache(airbnb_id):
     print 'cache miss'
     listing = get_airbnb_listing_info(client_id, **params)
     mem_cache_dict[airbnb_id] = listing
-    redisClient.set(airbnb_id, listing)
+    #redisClient.set(airbnb_id, listing)
     return listing, 0
 
 def download_all(listings):

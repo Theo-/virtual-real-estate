@@ -46,7 +46,7 @@ def get_con():
         params = result['parameters']
 
         # If no intent is defined
-        if "intentName" not in result['metadata'].keys:
+        if "intentName" not in result['metadata']:
              return json.dumps({ "displayText": "What was that?" });
         
         intentName = result['metadata']['intentName']   

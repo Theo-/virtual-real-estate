@@ -10,7 +10,10 @@ import json
 import os
 from threading import Thread
 import cPickle
+#import redis
 from basic_request import client_id, get_airbnb_listing, listing_id_example, get_airbnb_listing_info
+
+#redisClient = redis.StrictRedis(host=os.environ['REDIS_URL'], port=6379, db=0)
 
 # Creating app, migration tool and manager
 app = create_app()
@@ -24,6 +27,9 @@ manager.add_command('db', MigrateCommand)
 server = Server(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
 manager.add_command("runserver", Server(host="0.0.0.0", port=int(os.environ.get('PORT', 5000))),threaded=True,debug=True)
 
+# Load vecotrizer
+with open('vectorizer.pkl', 'rb') as f:
+    vectorizer = cPickle.load(f)
 
 gauss_clf = 0
 mem_cache_dict = {}
@@ -147,13 +153,9 @@ def pick_a_suggestion(sessionId):
             break
 
         scanned = scanned + 1
-        if scanned > 5:
-            break
 
-        with open('vectorizer.pkl', 'rb') as f:
-            vectorizer = cPickle.load(f)
         description = make_description(detailedDescription)
-        vectors =vectorizer.transform([description])
+        vectors = vectorizer.transform([description])
 
         # Use description to make prediction
         try:
@@ -180,6 +182,7 @@ def get_airbnb_listing_info_cache(airbnb_id):
     print 'cache miss'
     listing = get_airbnb_listing_info(client_id, **params)
     mem_cache_dict[airbnb_id] = listing
+    #redisClient.set(airbnb_id, listing)
     return listing, 0
 
 def download_all(listings):

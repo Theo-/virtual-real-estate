@@ -165,7 +165,7 @@ def pick_a_suggestion(sessionId):
             highestScore = score
             highestResult = result
 
-    return None if highestResult == None else highestResult
+    return highestResult
 
 def get_airbnb_listing_info_cache(airbnb_id):
     params = {

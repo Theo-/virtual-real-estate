@@ -44,7 +44,13 @@ def get_con():
     if request.method == "POST":
         result = request.json['result']
         params = result['parameters']
-        intentName = result['metadata']['intentName']
+
+        # If no intent is defined
+        if "intentName" not in result['metadata'].keys:
+             return json.dumps({ "displayText": "What was that?" });
+        
+        intentName = result['metadata']['intentName']   
+
         sessionId = request.json['sessionId']
 
         if intentName == "StartAparmentSearch":
@@ -159,7 +165,7 @@ def pick_a_suggestion(sessionId):
             highestScore = score
             highestResult = result
 
-    return results[0] if highestResult == None else highestResult
+    return highestResult
 
 def get_airbnb_listing_info_cache(airbnb_id):
     params = {
@@ -185,6 +191,11 @@ def download_all(listings):
     print 'Downloaded finished'
 
 def format_response(suggestion):
+    if suggestion is None:
+        return json.dumps({
+            displayText: "Sorry I could not find anything."
+        })
+
     url = "https://airbnb.ca/rooms/" + str(suggestion['listing']['id'])
     text = "I have something for you: "+url
 

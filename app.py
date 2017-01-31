@@ -3,7 +3,7 @@ from flask_script import Manager, Server
 from flask_migrate import Migrate, MigrateCommand
 from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings
 from init import create_app, db
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import GaussianNB, BernoulliNB
 from training import train_classifier
 from sklearn.exceptions import NotFittedError
 import json
@@ -70,7 +70,7 @@ def header(response):
     return response
 
 def create_new_user(sess_id):
-    gauss_clf = GaussianNB()
+    gauss_clf = BernoulliNB()
     user = User(session_id=sess_id)
     db.session.add(user)
     user_id = User.query.filter_by(session_id = sess_id).all()[0].id

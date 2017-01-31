@@ -193,7 +193,7 @@ def download_all(listings):
 def format_response(suggestion):
     if suggestion is None:
         return json.dumps({
-            displayText: "Sorry I could not find anything."
+            "displayText": "Sorry I could not find anything."
         })
 
     url = "https://airbnb.ca/rooms/" + str(suggestion['listing']['id'])

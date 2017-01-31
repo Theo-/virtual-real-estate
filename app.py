@@ -47,7 +47,7 @@ def get_con():
 
         # If no intent is defined
         if "intentName" not in result['metadata']:
-             return json.dumps({ "displayText": "What was that?" });
+             return json.dumps({ "displayText": "What was that?", "speech": "What was that?" });
         
         intentName = result['metadata']['intentName']   
 
@@ -193,6 +193,7 @@ def download_all(listings):
 def format_response(suggestion):
     if suggestion is None:
         return json.dumps({
+            "speech": "Sorry I could not find anything.",
             "displayText": "Sorry I could not find anything."
         })
 

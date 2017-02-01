@@ -13,7 +13,7 @@ import cPickle
 import redis
 from basic_request import client_id, get_airbnb_listing, listing_id_example, get_airbnb_listing_info
 
-redisClient = redis.StrictRedis(host=os.environ.get('REDIS_URL', 'localhost'), port=6379, db=0)
+redisClient = redis.StrictRedis(host=os.environ.get('REDIS_URL', 'localhost'), port=int(os.environ.get('REDIS_PORT', '6379')), db=0)
 
 # Creating app, migration tool and manager
 app = create_app()

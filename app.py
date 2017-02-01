@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, session
 from flask_script import Manager, Server
 from flask_migrate import Migrate, MigrateCommand
 from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings
@@ -8,12 +8,18 @@ from training import train_classifier
 from sklearn.exceptions import NotFittedError
 import json
 import os
+import facebook
 from threading import Thread
 import cPickle
 #import redis
 from basic_request import client_id, get_airbnb_listing, listing_id_example, get_airbnb_listing_info
 
 #redisClient = redis.StrictRedis(host=os.environ['REDIS_URL'], port=6379, db=0)
+
+# Facebook app details
+FB_APP_ID = '901269919975674'
+FB_APP_NAME = 'Airbnbro'
+FB_APP_SECRET = '273682ff5600e44aa95e94c0bc0acb83'
 
 # Creating app, migration tool and manager
 app = create_app()
@@ -38,43 +44,51 @@ mem_cache_dict = {}
 @app.before_request
 def check_id():
     if request.method == 'POST':
-        sess_id = request.json['sessionId']
-        user = User.query.filter_by(session_id = sess_id).all()
-        if len(user) == 0:
-            gauss_clf = create_new_user(sess_id)
-        else:
-            gauss_clf = Classifiers.query.filter_by(user_id=user[0].id).first()
+        pass
+        # sess_id = request.json['sessionId']
+        # user = User.query.filter_by(session_id = sess_id).all()
+        # if len(user) == 0:
+        #     gauss_clf = create_new_user(sess_id)
+        # else:
+        #     gauss_clf = Classifiers.query.filter_by(user_id=user[0].id).first()
 
 @app.route('/', methods=["POST"] )
 def get_con():
     if request.method == "POST":
-        result = request.json['result']
-        params = result['parameters']
 
-        # If no intent is defined
-        if "intentName" not in result['metadata']:
-             return json.dumps({ "displayText": "What was that?", "speech": "What was that?" });
+        result = facebook.get_user_from_cookie(cookies=request.cookies, app_id=FB_APP_ID,
+                                  app_secret=FB_APP_SECRET)
+
+        print result
+        return json.dumps({
+            "speech": "suhhhh",
+            "displayText": "bruhhhh",
+        })
+
+        # # If no intent is defined
+        # if "intentName" not in result['metadata']:
+        #      return json.dumps({ "displayText": "What was that?", "speech": "What was that?" });
         
-        intentName = result['metadata']['intentName']   
+        # intentName = result['metadata']['intentName']   
 
-        sessionId = request.json['sessionId']
+        # sessionId = request.json['sessionId']
 
-        if intentName == "StartAparmentSearch":
-            if set(("budget", "city", "date-period", "rooms")) <= set(params):
-                save_user_parameters(sessionId, params)
-                suggestion = pick_a_suggestion(sessionId)
-                return format_response(suggestion)
+        # if intentName == "StartAparmentSearch":
+        #     if set(("budget", "city", "date-period", "rooms")) <= set(params):
+        #         save_user_parameters(sessionId, params)
+        #         suggestion = pick_a_suggestion(sessionId)
+        #         return format_response(suggestion)
         
-        if intentName == "PickApartment":
-            suggestion = pick_a_suggestion(sessionId)
-            return format_response(suggestion)
+        # if intentName == "PickApartment":
+        #     suggestion = pick_a_suggestion(sessionId)
+        #     return format_response(suggestion)
                 
-        if intentName == "SuggestionFeedback":
-            positive = params['Positive'] != ''
-            context = result['contexts'][0]['parameters']
-            save_suggestion_feedback(sessionId, context, positive)
-            suggestion = pick_a_suggestion(sessionId)
-            return format_response(suggestion)
+        # if intentName == "SuggestionFeedback":
+        #     positive = params['Positive'] != ''
+        #     context = result['contexts'][0]['parameters']
+        #     save_suggestion_feedback(sessionId, context, positive)
+        #     suggestion = pick_a_suggestion(sessionId)
+        #     return format_response(suggestion)
 
 @app.after_request
 def header(response):

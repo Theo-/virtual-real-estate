@@ -179,7 +179,6 @@ def get_airbnb_listing_cache(client, **params):
     if listCache is not None:
         return json.loads(listCache)
 
-    print key
     listingNotCache = get_airbnb_listing(client, **params)
     redisClient.setex(key, 60 * 60 * 24 * 7, json.dumps(listingNotCache))
     return listingNotCache

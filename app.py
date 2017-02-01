@@ -10,10 +10,11 @@ import json
 import os
 from threading import Thread
 import cPickle
-#import redis
+import md5
+import redis
 from basic_request import client_id, get_airbnb_listing, listing_id_example, get_airbnb_listing_info
 
-#redisClient = redis.StrictRedis(host=os.environ['REDIS_URL'], port=6379, db=0)
+redisClient = redis.StrictRedis(host=os.environ.get('REDIS_URL', 'localhost'), port=6379, db=0)
 
 # Creating app, migration tool and manager
 app = create_app()
@@ -124,7 +125,7 @@ def pick_a_suggestion(sessionId):
         "_limit": "50"
     }
 
-    results = get_airbnb_listing(client_id, **params)
+    results = get_airbnb_listing_cache(client_id, **params)
 
     # Make predictions
     user = User.query.filter_by(session_id=sessionId).first()
@@ -169,20 +170,37 @@ def pick_a_suggestion(sessionId):
 
     return highestResult
 
+def get_airbnb_listing_cache(client, **params):
+    location = params['location']
+    location = location.replace(' ', '_')
+    key = "r-"+str(params['min_bedrooms'])+"_p-"+str(params['price_max'])+"_c-"+str(location)+"_l"+str(params['_limit'])
+
+    listCache = redisClient.get(key)
+
+    if listCache is not None:
+        return json.loads(listCache)
+
+    print key
+    listingNotCache = get_airbnb_listing(client, **params)
+    redisClient.setex(key, 60 * 60 * 24 * 7, json.dumps(listingNotCache))
+    return listingNotCache
+
 def get_airbnb_listing_info_cache(airbnb_id):
     params = {
         "listing_id": airbnb_id,
         "locale": "en-US"
     }
 
-    if airbnb_id in mem_cache_dict:
-        print 'cache hit'
-        return mem_cache_dict[airbnb_id], 1
+    listingString = redisClient.get(str(airbnb_id))
 
-    print 'cache miss'
+    if listingString is not None:
+        # hits the cache
+        return json.loads(listingString), 1
+
+    # misses the cache
     listing = get_airbnb_listing_info(client_id, **params)
-    mem_cache_dict[airbnb_id] = listing
-    #redisClient.set(airbnb_id, listing)
+    # The object stays in the cache for a week
+    redisClient.setex(str(airbnb_id), 60 * 60 * 24 * 7, json.dumps(listing))
     return listing, 0
 
 def download_all(listings):

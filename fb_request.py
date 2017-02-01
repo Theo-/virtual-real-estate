@@ -15,10 +15,10 @@ def receive_message():
             time_of_event = entry["time"]
 
             for event in entry["messaging"]:
-                if (event["message"]):
+                if "message" in event:
                     received_message(event)
                 else:
-                    print("Webhook received unknown event: " + event)
+                    print(event)
 
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
@@ -40,19 +40,18 @@ def received_message(event):
     recipient_id = event["recipient"]["id"]
     time_of_message = event["timestamp"]
     message = event["message"]
-
-    print(json.dumps(message))
+    print("Received Message.")
 
     message_id = message["mid"]
 
-    message_text = message["text"]
-
-    if (message_text):
+    if "text" in message:
         # api.ai call here to parse message_text
-        send_message(sender_id, message_text)
+        send_message(sender_id, message["text"])
+    else:
+        print("echoed back ")
+        print(json.dumps(message))
 
 def send_message(recipient_id, message_text):
-    print(recipient_id)
     message_data = {
         "recipient": json.dumps({
             "id": recipient_id
@@ -65,11 +64,10 @@ def send_message(recipient_id, message_text):
 
 def call_send_api(message_data):
     url = "https://graph.facebook.com/v2.6/me/messages"
-    # ADD ACCESS TOKEN ENV FILE
+    # wow get rid of this shit u idiot
     payload = {
-        "access_token": ""
+        "access_token": "yourauthhere"
     }
-    print(message_data)
     # print(os.environ.get("PAGE_ACCESS_TOKEN"))
     r = requests.post(url, params=payload, data=message_data)
     print(json.dumps(r.json()))

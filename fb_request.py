@@ -1,4 +1,5 @@
 from flask import request, render_template, make_response
+import requests
 import os
 import json
 
@@ -33,8 +34,6 @@ def fb_auth():
         print("Failed validation. Make sure the validation tokens match.")
         resp = make_response(render_template('error.html'), 403)
         return resp
-    # print("i'm here")
-    # return render_template('test.html')
 
 def received_message(event):
     sender_id = event["sender"]["id"]
@@ -42,36 +41,38 @@ def received_message(event):
     time_of_message = event["timestamp"]
     message = event["message"]
 
-    print("Received message for user %d and page %d at %d with message:", sender_id, recipient_id, time_of_message)
     print(json.dumps(message))
 
     message_id = message["mid"]
 
     message_text = message["text"]
-    message_attachments = message["attachments"]
 
     if (message_text):
         # api.ai call here to parse message_text
-    
+        send_message(sender_id, message_text)
 
 def send_message(recipient_id, message_text):
+    print(recipient_id)
     message_data = {
-        recipient: {
-            id: recipient_id
-        },
-        message: {
-            text: message_text
-        }
+        "recipient": json.dumps({
+            "id": recipient_id
+        }),
+        "message": json.dumps({
+            "text": message_text
+        })
     }
-    call_send_api(json.load(message_data))
+    call_send_api(message_data)
 
 def call_send_api(message_data):
     url = "https://graph.facebook.com/v2.6/me/messages"
+    # ADD ACCESS TOKEN ENV FILE
     payload = {
-        page_access_token
+        "access_token": ""
     }
-    print(os.environ["PAGE_ACCESS_TOKEN"])
-    # request.post(url, )
+    print(message_data)
+    # print(os.environ.get("PAGE_ACCESS_TOKEN"))
+    r = requests.post(url, params=payload, data=message_data)
+    print(json.dumps(r.json()))
     
 # run on port 80
 

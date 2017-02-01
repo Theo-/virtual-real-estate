@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, make_response
 from flask_script import Manager, Server
 from flask_migrate import Migrate, MigrateCommand
 from models import User, Classifiers, Listing, ListingImage, ListingMappedImages, UserVisitedListings
@@ -48,6 +48,35 @@ def check_id():
 @app.route('/privacy', methods=["GET"])
 def privacy():
     return render_template('privacy.html')
+
+# for fb webhooks integration, authenticating with fb
+@app.route("/", methods=["GET"])
+def test():
+    if (request.args.get('hub.mode') == 'subscribe' and request.args.get('hub.verify_token') == "ni_hao"):
+        print("Validating webhook")
+        res = make_response(request.args.get('hub.challenge'))
+        return res
+    else:
+        print("Failed validation. Make sure the validation tokens match.")
+        resp = make_response(render_template('error.html'), 403)
+        return resp
+
+# receiving a message
+@app.route("/webhook", methods=["POST"])
+def receive_message():
+    data = request.form
+    if (data["object"] == "page"):
+        for entry in data["entry"]:
+            page_id = entry["id"]
+            time_of_event = entry["time"]
+
+            for event in entry["messaging"]:
+                if (event["message"]):
+                    print("message is:" + event["message"])
+                else:
+                    print("unknown event" + event)
+
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
 @app.route('/', methods=["POST"] )
 def get_con():

@@ -10,7 +10,6 @@ import json
 import os
 from threading import Thread
 import cPickle
-import md5
 import redis
 from basic_request import client_id, get_airbnb_listing, listing_id_example, get_airbnb_listing_info
 

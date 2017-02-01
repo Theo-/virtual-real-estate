@@ -11,15 +11,13 @@ import os
 import facebook
 from threading import Thread
 import cPickle
-#import redis
 from basic_request import client_id, get_airbnb_listing, listing_id_example, get_airbnb_listing_info
 
-#redisClient = redis.StrictRedis(host=os.environ['REDIS_URL'], port=6379, db=0)
-
 # Facebook app details
-FB_APP_ID = '901269919975674'
-FB_APP_NAME = 'Airbnbro'
-FB_APP_SECRET = '273682ff5600e44aa95e94c0bc0acb83'
+FB_APP_ID = '904739326295400'
+FB_APP_NAME = 'AirBnBro - Test1'
+FB_APP_SECRET = '72cd0d0e1c5bec1c6596aef227770d3f'
+FB_PAGE_ACCESS_TOKEN = 'EAAM22woofWgBAEr43VgSqHZALYIzF8ziNT0otpfDEYYGlBi2zgBQsObklpkgsdo8ZCyuJOwE2zneH13EEGuNgNtuZARTVkcSO1x2uVaguz7vdBj3ZCCHAAkkhMhW2z7sPPFjQUY35dZC4WNURqNNqRqtlPZAKjIZAKpjZAqNLfjY2gZDZD'
 
 # Creating app, migration tool and manager
 app = create_app()
@@ -44,217 +42,53 @@ mem_cache_dict = {}
 @app.before_request
 def check_id():
     if request.method == 'POST':
-        pass
-        # sess_id = request.json['sessionId']
-        # user = User.query.filter_by(session_id = sess_id).all()
-        # if len(user) == 0:
-        #     gauss_clf = create_new_user(sess_id)
-        # else:
-        #     gauss_clf = Classifiers.query.filter_by(user_id=user[0].id).first()
+        if session.get('user'):
+            g.user = session.get('user')
+            return
+
+        result = facebook.get_user_from_cookie(cookies=request.cookies, app_id=FB_APP_ID,
+                                  app_secret=FB_APP_SECRET)
+        if result:
+            graph = GraphAPI(result['access_token'])
+            profile = graph.get_object('me')
+
+            print str(profile['id'])
+
+    if request.method == "GET":
+        if set(["hub.challenge", "hub.mode", "hub.verify_token"]).issubset(request.args) and request.args["hub.verify_token"] == "airbnbrotest":
+            return request.args["hub.challenge"]
+        else:
+            return "Could not authenticate"
 
 @app.route('/', methods=["POST"] )
 def get_con():
     if request.method == "POST":
-
-        result = facebook.get_user_from_cookie(cookies=request.cookies, app_id=FB_APP_ID,
-                                  app_secret=FB_APP_SECRET)
-
-        print result
-        return json.dumps({
-            "speech": "suhhhh",
-            "displayText": "bruhhhh",
-        })
-
-        # # If no intent is defined
-        # if "intentName" not in result['metadata']:
-        #      return json.dumps({ "displayText": "What was that?", "speech": "What was that?" });
-        
-        # intentName = result['metadata']['intentName']   
-
-        # sessionId = request.json['sessionId']
-
-        # if intentName == "StartAparmentSearch":
-        #     if set(("budget", "city", "date-period", "rooms")) <= set(params):
-        #         save_user_parameters(sessionId, params)
-        #         suggestion = pick_a_suggestion(sessionId)
-        #         return format_response(suggestion)
-        
-        # if intentName == "PickApartment":
-        #     suggestion = pick_a_suggestion(sessionId)
-        #     return format_response(suggestion)
-                
-        # if intentName == "SuggestionFeedback":
-        #     positive = params['Positive'] != ''
-        #     context = result['contexts'][0]['parameters']
-        #     save_suggestion_feedback(sessionId, context, positive)
-        #     suggestion = pick_a_suggestion(sessionId)
-        #     return format_response(suggestion)
+        return json.dumps(gen_response("thomas", 567))
 
 @app.after_request
 def header(response):
     response.headers['Content-type'] = 'application/json'
     return response
 
-def create_new_user(sess_id):
-    gauss_clf = BernoulliNB()
-    user = User(session_id=sess_id)
-    db.session.add(user)
-    user_id = User.query.filter_by(session_id = sess_id).all()[0].id
-    classifier = Classifiers(user_id=user_id,pickled_classifier=gauss_clf)
-    db.session.add(classifier)
-    db.session.commit()
-    return gauss_clf
 
-def save_user_parameters(sessionId, params):
-    user = User.query.filter_by(session_id=sessionId).update(dict(city=params['city'],date_period=params['date-period'],number_rooms=params['rooms'],budget=params['budget']['amount']))
-    return db.session.commit()
-
-def save_suggestion_feedback(sessionId, context, feedback):
-    user = User.query.filter_by(session_id=sessionId).first()
-    gauss_object = Classifiers.query.filter_by(user_id=user.id).first()
-    gauss_clf = gauss_object.pickled_classifier
-
-    classified = 1 if feedback else 0
-    visited = UserVisitedListings(user_id=user.id,listing=context['id'], like=feedback)
-
-    train_classifier([context['description']], [classified], gauss_clf)
-    Classifiers.query.filter_by(user_id=user.id).update(dict(pickled_classifier=gauss_clf))
-    db.session.add(visited)
-    db.session.commit()
-
-def make_description(info):
-    return info['description'] + ' ' + info['neighborhood_overview'] + ' ' + info['space'] + ' ' + info['name']
-
-def pick_a_suggestion(sessionId):
-    user = User.query.filter_by(session_id=sessionId).first()
-    price_max = user.budget + 20
-
-    params = {
-        "locale":"en-US",
-        "currency":"USD",
-        "min_bedrooms": user.number_rooms,
-        "price_max": price_max,
-        "location": user.city,
-        "_limit": "50"
-    }
-
-    results = get_airbnb_listing(client_id, **params)
-
-    # Make predictions
-    user = User.query.filter_by(session_id=sessionId).first()
-    gauss_object = Classifiers.query.filter_by(user_id=user.id).first()
-    gauss_clf = gauss_object.pickled_classifier
-
-    seenListings = UserVisitedListings.query.filter_by(user_id=user.id).all()
-    seenIds = [listing.listing for listing in seenListings]
-
-    highestScore = -1
-    highestResult = None
-    noneHit = 0
-    scanned = 0
-
-    for result in results:
-        if int(result['listing']['id']) in seenIds:
-            continue
-
-        detailedDescription, isHit = get_airbnb_listing_info_cache(result['listing']['id'])
-        if not isHit:
-            noneHit = noneHit + 1
-
-        if noneHit > 2:
-            thread = Thread(target = download_all, args = ([results]))
-            thread.start()
-            break
-
-        scanned = scanned + 1
-
-        description = make_description(detailedDescription)
-        vectors = vectorizer.transform([description])
-
-        # Use description to make prediction
-        try:
-            score = gauss_clf.predict(vectors.toarray())
-        except NotFittedError:
-            score = 0
-        
-        if highestScore < score:
-            highestScore = score
-            highestResult = result
-
-    return highestResult
-
-def get_airbnb_listing_info_cache(airbnb_id):
-    params = {
-        "listing_id": airbnb_id,
-        "locale": "en-US"
-    }
-
-    if airbnb_id in mem_cache_dict:
-        print 'cache hit'
-        return mem_cache_dict[airbnb_id], 1
-
-    print 'cache miss'
-    listing = get_airbnb_listing_info(client_id, **params)
-    mem_cache_dict[airbnb_id] = listing
-    #redisClient.set(airbnb_id, listing)
-    return listing, 0
-
-def download_all(listings):
-    print 'Starting download!'
-    for listing in listings:
-        print 'Download ', listing['listing']['id']
-        get_airbnb_listing_info_cache(listing['listing']['id'])
-
-    print 'Downloaded finished'
-
-def format_response(suggestion):
-    if suggestion is None:
-        return json.dumps({
-            "speech": "Sorry I could not find anything.",
-            "displayText": "Sorry I could not find anything."
-        })
-
-    url = "https://airbnb.ca/rooms/" + str(suggestion['listing']['id'])
-    text = "I have something for you: "+url
-
-    listingInfo, isHit = get_airbnb_listing_info_cache(suggestion['listing']['id'])
-
-    facebook_message = {
-        "attachment": {
-            "type": "template",
-            "payload": {
-                "template_type": "generic",
-                "elements": [
-                    {
-                        "title": "I found you a dope place bruh: "+listingInfo['name'],
-                        "image_url": listingInfo['picture_url'],
-                        "subtitle": listingInfo['summary'],
-                        "buttons": [
-                            {
-                                "type": "web_url",
-                                "url": url,
-                                "title": "View Details"
-                            }
-                        ]
-                    }
-                ]
+def gen_response(name, user_id):
+    response = {
+        "recipient": {
+            "id": "USER_ID"
+        },
+        "message": {
+            "attachment": {
+                "type": "image",
+                "payload": {
+                    "url": "https://petersapparel.parseapp.com/img/shirt.png",
+                    "is_reusable": True
+                }
             }
         }
     }
+    
+    return response
 
-    return json.dumps({
-        "speech": text,
-        "displayText": text,
-        "data": { "facebook": facebook_message },
-        "contextOut": [{ 
-            "name": "apt-description",
-            "lifespan": 3,
-            "parameters": {
-                "description": make_description(listingInfo),
-                "id": listingInfo['id']
-            }
-        }]
-    })
 
 if __name__ == "__main__":
     manager.run()

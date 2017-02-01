@@ -45,6 +45,10 @@ def check_id():
         else:
             gauss_clf = Classifiers.query.filter_by(user_id=user[0].id).first()
 
+@app.route('/privacy', methods=["GET"])
+def privacy():
+    return render_template('privacy.html')
+
 @app.route('/', methods=["POST"] )
 def get_con():
     if request.method == "POST":
@@ -78,7 +82,10 @@ def get_con():
 
 @app.after_request
 def header(response):
-    response.headers['Content-type'] = 'application/json'
+    if request.method == 'POST':
+        response.headers['Content-type'] = 'application/json'
+        return response
+    
     return response
 
 def create_new_user(sess_id):
